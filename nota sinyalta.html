@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Nota Sinyalta</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+        }
+        .print-only {
+            display: none;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background: white !important;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body class="h-full bg-gradient-to-br from-blue-50 to-indigo-100 font-sans">
+  <div class="min-h-full p-4"><!-- Header -->
+   <header class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div class="text-center">
+     <h1 id="company-name" class="text-3xl font-bold mb-2" style="color: #059669;">SINYALTA</h1>
+     <p id="company-address" class="text-gray-600 mb-2">Jl. Segara Anak KM 02 Kembang Kerang Kec. Aikmel</p>
+     <p id="company-phone" class="text-gray-600 mb-2">WhatsApp: 087777999704</p>
+     <h2 id="form-title" class="text-xl font-semibold text-gray-800 mt-4">Input Nota Penjualan &amp; Jasa Instalasi</h2>
+    </div>
+   </header>
+   <div class="grid lg:grid-cols-2 gap-6"><!-- Form Input -->
+    <div class="bg-white rounded-lg shadow-md p-6 no-print">
+     <h3 class="text-lg font-semibold text-gray-800 mb-4">Form Input Nota</h3>
+     <form id="invoice-form" class="space-y-4">
+      <div class="grid md:grid-cols-2 gap-4">
+       <div><label for="invoice-number" class="block text-sm font-medium text-gray-700 mb-1">No. Nota</label> <input type="text" id="invoice-number" name="invoice_number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50" placeholder="SIN-001" readonly>
+        <p class="text-xs text-gray-500 mt-1">Nomor nota dibuat otomatis</p>
+       </div>
+       <div><label for="service-type" class="block text-sm font-medium text-gray-700 mb-1">Jenis Layanan</label> <select id="service-type" name="service_type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required> <option value="">Pilih Layanan</option> <option value="Penjualan">Penjualan</option> <option value="Jasa Instalasi">Jasa Instalasi</option> <option value="Penjualan + Instalasi">Penjualan + Instalasi</option> </select>
+       </div>
+      </div>
+      <div><label for="customer-name" class="block text-sm font-medium text-gray-700 mb-1">Nama Pelanggan</label> <input type="text" id="customer-name" name="customer_name" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nama lengkap pelanggan" required>
+      </div>
+      <div><label for="customer-phone" class="block text-sm font-medium text-gray-700 mb-1">No. Telepon</label> <input type="tel" id="customer-phone" name="customer_phone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="08xxxxxxxxxx">
+      </div>
+      <div><label for="customer-address" class="block text-sm font-medium text-gray-700 mb-1">Alamat Pelanggan</label> <textarea id="customer-address" name="customer_address" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Alamat lengkap pelanggan"></textarea>
+      </div>
+      <div><label for="items" class="block text-sm font-medium text-gray-700 mb-1">Detail Item/Jasa</label>
+       <div id="items-container" class="space-y-2 mb-2">
+        <div class="item-row grid grid-cols-12 gap-2 items-end">
+         <div class="col-span-1"><label class="block text-xs text-gray-600 mb-1">Qty</label> <input type="number" class="item-qty w-full px-2 py-1 border border-gray-300 rounded text-sm" placeholder="1" min="1" value="1">
+         </div>
+         <div class="col-span-6"><label class="block text-xs text-gray-600 mb-1">Nama Item/Jasa</label> <input type="text" class="item-name w-full px-2 py-1 border border-gray-300 rounded text-sm" placeholder="Nama item atau jasa">
+         </div>
+         <div class="col-span-3"><label class="block text-xs text-gray-600 mb-1">Harga Satuan</label> <input type="number" class="item-price w-full px-2 py-1 border border-gray-300 rounded text-sm" placeholder="50000" min="0">
+         </div>
+         <div class="col-span-2"><label class="block text-xs text-gray-600 mb-1">Total</label> <input type="text" class="item-total w-full px-2 py-1 border border-gray-300 rounded text-sm bg-gray-50" readonly placeholder="0">
+         </div>
+        </div>
+       </div>
+       <div class="flex space-x-2"><button type="button" onclick="addItemRow()" class="text-sm font-medium flex items-center transition-colors" style="color: #059669;" onmouseover="this.style.color='#047857'" onmouseout="this.style.color='#059669'">
+         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+         </svg> Tambah Item </button> <button type="button" onclick="removeItemRow()" class="text-red-600 hover:text-red-800 text-sm font-medium flex items-center">
+         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+         </svg> Hapus Item </button>
+       </div><textarea id="items" name="items" class="hidden"></textarea>
+      </div>
+      <div class="grid md:grid-cols-3 gap-4">
+       <div><label for="subtotal" class="block text-sm font-medium text-gray-700 mb-1">Subtotal (Rp)</label> <input type="number" id="subtotal" name="subtotal" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="150000" required>
+       </div>
+       <div><label for="tax" class="block text-sm font-medium text-gray-700 mb-1">Pajak (Rp)</label> <input type="number" id="tax" name="tax" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0" value="0">
+       </div>
+       <div><label for="total" class="block text-sm font-medium text-gray-700 mb-1">Total (Rp)</label> <input type="number" id="total" name="total" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50" readonly>
+       </div>
+      </div>
+      <div><label for="payment-status" class="block text-sm font-medium text-gray-700 mb-1">Status Pembayaran</label> <select id="payment-status" name="payment_status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required> <option value="">Pilih Status</option> <option value="Lunas">Lunas</option> <option value="Belum Lunas">Belum Lunas</option> <option value="DP">DP (Down Payment)</option> </select>
+      </div>
+      <div><label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Catatan</label> <textarea id="notes" name="notes" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Catatan tambahan (opsional)"></textarea>
+      </div><button type="submit" id="submit-btn" class="w-full text-white py-2 px-4 rounded-md focus:outline-none focus:ring-2 font-medium transition-colors" style="background-color: #059669;" onmouseover="this.style.backgroundColor='#047857'" onmouseout="this.style.backgroundColor='#059669'" onfocus="this.style.boxShadow='0 0 0 2px rgba(5, 150, 105, 0.5)'" onblur="this.style.boxShadow='none'"> <span id="submit-text">Simpan Nota</span> <span id="loading-spinner" class="hidden">Menyimpan...</span> </button>
+     </form>
+    </div><!-- Daftar Nota -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+     <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold text-gray-800">Daftar Nota</h3>
+      <div class="text-sm text-gray-600">
+       Total: <span id="invoice-count">0</span> nota
+      </div>
+     </div>
+     <div id="invoice-list" class="space-y-3 max-h-96 overflow-y-auto">
+      <div id="empty-state" class="text-center py-8 text-gray-500">
+       <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewbox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 a2 0 01-2 2z" />
+       </svg>
+       <p>Belum ada nota tersimpan</p>
+       <p class="text-sm">Isi form di sebelah kiri untuk membuat nota baru</p>
+      </div>
+     </div>
+    </div>
+   </div><!-- Print Preview Modal -->
+   <div id="print-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+     <div class="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
+      <div class="p-6 no-print">
+       <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold">Preview Nota</h3>
+        <div class="space-x-2"><button onclick="printInvoice()" class="text-white px-4 py-2 rounded transition-colors" style="background-color: #059669;" onmouseover="this.style.backgroundColor='#047857'" onmouseout="this.style.backgroundColor='#059669'"> Print </button> <button onclick="closePrintModal()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"> Tutup </button>
+        </div>
+       </div>
+      </div>
+      <div id="print-content" class="p-6 border-t"></div>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+        let invoiceData = [];
+        let currentRecordCount = 0;
+
+        const defaultConfig = {
+            company_name: "SINYALTA",
+            company_address: "Jl. Segara Anak KM 02 Kembang Kerang Kec. Aikmel",
+            company_phone: "087777999704",
+            form_title: "Input Nota Penjualan & Jasa Instalasi",
+            primary_color: "#059669"
+        };
+
+        // Data SDK Handler
+        const dataHandler = {
+            onDataChanged(data) {
+                invoiceData = data;
+                currentRecordCount = data.length;
+                renderInvoiceList();
+                updateInvoiceCount();
+                updateInvoiceNumber(); // Update invoice number when data changes
+            }
+        };
+
+        // Element SDK Implementation
+        const element = {
+            defaultConfig,
+            onConfigChange: async (config) => {
+                const primaryColor = config.primary_color || defaultConfig.primary_color;
+                
+                document.getElementById('company-name').textContent = config.company_name || defaultConfig.company_name;
+                document.getElementById('company-name').style.color = primaryColor;
+                
+                document.getElementById('company-address').textContent = config.company_address || defaultConfig.company_address;
+                document.getElementById('company-phone').textContent = `WhatsApp: ${config.company_phone || defaultConfig.company_phone}`;
+                document.getElementById('form-title').textContent = config.form_title || defaultConfig.form_title;
+                
+                // Apply green color to buttons and interactive elements
+                const submitBtn = document.getElementById('submit-btn');
+                if (submitBtn) {
+                    submitBtn.style.backgroundColor = primaryColor;
+                }
+                
+                // Apply to all buttons with indigo colors
+                const buttons = document.querySelectorAll('.bg-indigo-600, .text-indigo-600');
+                buttons.forEach(btn => {
+                    if (btn.classList.contains('bg-indigo-600')) {
+                        btn.style.backgroundColor = primaryColor;
+                    }
+                    if (btn.classList.contains('text-indigo-600')) {
+                        btn.style.color = primaryColor;
+                    }
+                });
+            },
+            mapToCapabilities: (config) => ({
+                recolorables: [
+                    {
+                        get: () => config.primary_color || "#4f46e5",
+                        set: (value) => {
+                            config.primary_color = value;
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ primary_color: value });
+                            }
+                        }
+                    }
+                ],
+                borderables: [],
+                fontEditable: undefined,
+                fontSizeable: undefined
+            }),
+            mapToEditPanelValues: (config) => new Map([
+                ["company_name", config.company_name || defaultConfig.company_name],
+                ["company_address", config.company_address || defaultConfig.company_address],
+                ["company_phone", config.company_phone || defaultConfig.company_phone],
+                ["form_title", config.form_title || defaultConfig.form_title]
+            ])
+        };
+
+        // Generate automatic invoice number
+        function generateInvoiceNumber() {
+            const today = new Date();
+            const year = today.getFullYear().toString().slice(-2);
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+            
+            // Count invoices created today
+            const todayInvoices = invoiceData.filter(invoice => {
+                const invoiceDate = new Date(invoice.date);
+                return invoiceDate.toDateString() === today.toDateString();
+            });
+            
+            const sequence = (todayInvoices.length + 1).toString().padStart(3, '0');
+            return `SIN-${year}${month}${day}-${sequence}`;
+        }
+
+        // Update invoice number when form loads
+        function updateInvoiceNumber() {
+            const invoiceNumberInput = document.getElementById('invoice-number');
+            invoiceNumberInput.value = generateInvoiceNumber();
+        }
+
+        // Initialize SDKs
+        async function initializeApp() {
+            try {
+                if (window.elementSdk) {
+                    await window.elementSdk.init(element);
+                }
+                
+                if (window.dataSdk) {
+                    const result = await window.dataSdk.init(dataHandler);
+                    if (!result.isOk) {
+                        console.error("Failed to initialize data SDK");
+                    }
+                }
+                
+                // Generate initial invoice number
+                updateInvoiceNumber();
+            } catch (error) {
+                console.error("Initialization error:", error);
+            }
+        }
+
+        // Add item row
+        function addItemRow() {
+            const container = document.getElementById('items-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'item-row grid grid-cols-12 gap-2 items-end';
+            newRow.innerHTML = `
+                <div class="col-span-1">
+                    <input type="number" class="item-qty w-full px-2 py-1 border border-gray-300 rounded text-sm" 
+                           placeholder="1" min="1" value="1">
+                </div>
+                <div class="col-span-6">
+                    <input type="text" class="item-name w-full px-2 py-1 border border-gray-300 rounded text-sm" 
+                           placeholder="Nama item atau jasa">
+                </div>
+                <div class="col-span-3">
+                    <input type="number" class="item-price w-full px-2 py-1 border border-gray-300 rounded text-sm" 
+                           placeholder="50000" min="0">
+                </div>
+                <div class="col-span-2">
+                    <input type="text" class="item-total w-full px-2 py-1 border border-gray-300 rounded text-sm bg-gray-50" 
+                           readonly placeholder="0">
+                </div>
+            `;
+            container.appendChild(newRow);
+            attachItemEventListeners(newRow);
+        }
+
+        // Remove item row
+        function removeItemRow() {
+            const container = document.getElementById('items-container');
+            const rows = container.querySelectorAll('.item-row');
+            if (rows.length > 1) {
+                container.removeChild(rows[rows.length - 1]);
+                calculateItemTotals();
+            }
+        }
+
+        // Attach event listeners to item row
+        function attachItemEventListeners(row) {
+            const qtyInput = row.querySelector('.item-qty');
+            const priceInput = row.querySelector('.item-price');
+            
+            qtyInput.addEventListener('input', calculateItemTotals);
+            priceInput.addEventListener('input', calculateItemTotals);
+        }
+
+        // Calculate item totals and update subtotal
+        function calculateItemTotals() {
+            const rows = document.querySelectorAll('.item-row');
+            let grandTotal = 0;
+            let itemsText = '';
+
+            rows.forEach((row, index) => {
+                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                const name = row.querySelector('.item-name').value.trim();
+                const totalInput = row.querySelector('.item-total');
+                
+                const itemTotal = qty * price;
+                totalInput.value = formatNumber(itemTotal);
+                grandTotal += itemTotal;
+
+                // Build items text for storage
+                if (name && qty > 0 && price > 0) {
+                    itemsText += \
+                    `${qty}x ${name} @ ${formatCurrency(price)} = ${formatCurrency(itemTotal)}\n`;
+                }
+            });
+
+            // Update subtotal and hidden textarea
+            document.getElementById('subtotal').value = grandTotal;
+            document.getElementById('items').value = itemsText.trim();
+            
+            // Recalculate final total
+            calculateTotal();
+        }
+
+        // Auto-calculate total
+        function calculateTotal() {
+            const subtotal = parseFloat(document.getElementById('subtotal').value) || 0;
+            const tax = parseFloat(document.getElementById('tax').value) || 0;
+            const total = subtotal + tax;
+            document.getElementById('total').value = total;
+        }
+
+        // Format number for display
+        function formatNumber(num) {
+            return new Intl.NumberFormat('id-ID').format(num);
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        // Form submission
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            if (currentRecordCount >= 999) {
+                showMessage("Batas maksimum 999 nota telah tercapai. Silakan hapus beberapa nota terlebih dahulu.", "error");
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            const submitText = document.getElementById('submit-text');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+
+            try {
+                const formData = new FormData(event.target);
+                const invoiceData = {
+                    invoice_number: formData.get('invoice_number'),
+                    customer_name: formData.get('customer_name'),
+                    customer_phone: formData.get('customer_phone') || '',
+                    customer_address: formData.get('customer_address') || '',
+                    service_type: formData.get('service_type'),
+                    items: formData.get('items'),
+                    subtotal: parseFloat(formData.get('subtotal')),
+                    tax: parseFloat(formData.get('tax')) || 0,
+                    total: parseFloat(formData.get('total')),
+                    payment_status: formData.get('payment_status'),
+                    date: new Date().toISOString(),
+                    notes: formData.get('notes') || ''
+                };
+
+                if (window.dataSdk) {
+                    const result = await window.dataSdk.create(invoiceData);
+                    if (result.isOk) {
+                        showMessage("Nota berhasil disimpan!", "success");
+                        document.getElementById('invoice-form').reset();
+                        document.getElementById('total').value = '';
+                        
+                        // Reset items to single row
+                        const container = document.getElementById('items-container');
+                        container.innerHTML = `
+                            <div class="item-row grid grid-cols-12 gap-2 items-end">
+                                <div class="col-span-1">
+                                    <label class="block text-xs text-gray-600 mb-1">Qty</label>
+                                    <input type="number" class="item-qty w-full px-2 py-1 border border-gray-300 rounded text-sm" 
+                                           placeholder="1" min="1" value="1">
+                                </div>
+                                <div class="col-span-6">
+                                    <label class="block text-xs text-gray-600 mb-1">Nama Item/Jasa</label>
+                                    <input type="text" class="item-name w-full px-2 py-1 border border-gray-300 rounded text-sm" 
+                                           placeholder="Nama item atau jasa">
+                                </div>
+                                <div class="col-span-3">
+                                    <label class="block text-xs text-gray-600 mb-1">Harga Satuan</label>
+                                    <input type="number" class="item-price w-full px-2 py-1 border border-gray-300 rounded text-sm" 
+                                           placeholder="50000" min="0">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-xs text-gray-600 mb-1">Total</label>
+                                    <input type="text" class="item-total w-full px-2 py-1 border border-gray-300 rounded text-sm bg-gray-50" 
+                                           readonly placeholder="0">
+                                </div>
+                            </div>
+                        `;
+                        attachItemEventListeners(container.querySelector('.item-row'));
+                        
+                        // Generate new invoice number for next entry
+                        updateInvoiceNumber();
+                    } else {
+                        showMessage("Gagal menyimpan nota. Silakan coba lagi.", "error");
+                    }
+                }
+            } catch (error) {
+                showMessage("Terjadi kesalahan. Silakan coba lagi.", "error");
+            } finally {
+                // Hide loading state
+                submitBtn.disabled = false;
+                submitText.classList.remove('hidden');
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+
+        // Render invoice list
+        function renderInvoiceList() {
+            const listContainer = document.getElementById('invoice-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (invoiceData.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            // Sort by date (newest first)
+            const sortedInvoices = [...invoiceData].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            listContainer.innerHTML = sortedInvoices.map(invoice => `
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h4 class="font-semibold text-gray-800">${invoice.invoice_number}</h4>
+                            <p class="text-sm text-gray-600">${invoice.customer_name}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-semibold" style="color: #059669;">${formatCurrency(invoice.total)}</p>
+                            <span class="inline-block px-2 py-1 text-xs rounded-full ${getStatusColor(invoice.payment_status)}">
+                                ${invoice.payment_status}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center text-sm text-gray-500">
+                        <span>${invoice.service_type}</span>
+                        <span>${formatDate(invoice.date)}</span>
+                    </div>
+                    <div class="mt-3 flex space-x-2">
+                        <button onclick="viewInvoice('${invoice.__backendId}')" 
+                                class="text-sm font-medium transition-colors"
+                                style="color: #059669;"
+                                onmouseover="this.style.color='#047857'" 
+                                onmouseout="this.style.color='#059669'">Lihat</button>
+                        <button onclick="deleteInvoice('${invoice.__backendId}')" 
+                                class="text-red-600 hover:text-red-800 text-sm font-medium">
+                            Hapus
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Get status color
+        function getStatusColor(status) {
+            switch (status) {
+                case 'Lunas':
+                    return 'bg-green-100 text-green-800';
+                case 'Belum Lunas':
+                    return 'bg-red-100 text-red-800';
+                case 'DP':
+                    return 'bg-yellow-100 text-yellow-800';
+                default:
+                    return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        // Update invoice count
+        function updateInvoiceCount() {
+            document.getElementById('invoice-count').textContent = currentRecordCount;
+        }
+
+        // View invoice
+        function viewInvoice(backendId) {
+            const invoice = invoiceData.find(inv => inv.__backendId === backendId);
+            if (!invoice) return;
+
+            const config = window.elementSdk ? window.elementSdk.config : defaultConfig;
+            const companyName = config.company_name || defaultConfig.company_name;
+            const companyAddress = config.company_address || defaultConfig.company_address;
+
+            const printContent = `
+                <div class="max-w-2xl mx-auto bg-white">
+                    <div class="text-center mb-6 border-b pb-4">
+                        <h1 class="text-2xl font-bold text-gray-800">${companyName}</h1>
+                        <p class="text-gray-600">${companyAddress}</p>
+                        <p class="text-gray-600">WhatsApp: 087777999704</p>
+                        <h2 class="text-lg font-semibold mt-4">NOTA PENJUALAN & JASA</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <h3 class="font-semibold mb-2">Informasi Nota:</h3>
+                            <p><strong>No. Nota:</strong> ${invoice.invoice_number}</p>
+                            <p><strong>Tanggal:</strong> ${formatDate(invoice.date)}</p>
+                            <p><strong>Jenis Layanan:</strong> ${invoice.service_type}</p>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold mb-2">Informasi Pelanggan:</h3>
+                            <p><strong>Nama:</strong> ${invoice.customer_name}</p>
+                            ${invoice.customer_phone ? `<p><strong>Telepon:</strong> ${invoice.customer_phone}</p>` : ''}
+                            ${invoice.customer_address ? `<p><strong>Alamat:</strong> ${invoice.customer_address}</p>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-2">Detail Item/Jasa:</h3>
+                        <div class="bg-gray-50 p-4 rounded border">
+                            <pre class="whitespace-pre-wrap text-sm">${invoice.items}</pre>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-4 mb-6">
+                        <div class="flex justify-end">
+                            <div class="w-64">
+                                <div class="flex justify-between py-1">
+                                    <span>Subtotal:</span>
+                                    <span>${formatCurrency(invoice.subtotal)}</span>
+                                </div>
+                                ${invoice.tax > 0 ? `
+                                <div class="flex justify-between py-1">
+                                    <span>Pajak:</span>
+                                    <span>${formatCurrency(invoice.tax)}</span>
+                                </div>
+                                ` : ''}
+                                <div class="flex justify-between py-2 border-t font-semibold text-lg">
+                                    <span>Total:</span>
+                                    <span>${formatCurrency(invoice.total)}</span>
+                                </div>
+                                <div class="flex justify-between py-1">
+                                    <span>Status:</span>
+                                    <span class="font-semibold">${invoice.payment_status}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${invoice.notes ? `
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-2">Catatan:</h3>
+                        <p class="text-sm text-gray-700">${invoice.notes}</p>
+                    </div>
+                    ` : ''}
+                    
+                    <div class="text-center text-sm text-gray-500 border-t pt-4">
+                        <p>Terima kasih atas kepercayaan Anda</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('print-content').innerHTML = printContent;
+            document.getElementById('print-modal').classList.remove('hidden');
+        }
+
+        // Delete invoice
+        async function deleteInvoice(backendId) {
+            const invoice = invoiceData.find(inv => inv.__backendId === backendId);
+            if (!invoice) return;
+
+            // Create inline confirmation
+            const invoiceElement = event.target.closest('.border');
+            const originalContent = invoiceElement.innerHTML;
+            
+            invoiceElement.innerHTML = `
+                <div class="p-4 bg-red-50 border-red-200 rounded">
+                    <p class="text-red-800 mb-3">Yakin ingin menghapus nota ${invoice.invoice_number}?</p>
+                    <div class="space-x-2">
+                        <button onclick="confirmDelete('${backendId}')" class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">
+                            Ya, Hapus
+                        </button>
+                        <button onclick="cancelDelete(this, \`${originalContent.replace(/`/g, '\`')}\`)" class="bg-gray-500 text-white px-3 py-1 rounded text-sm hover:bg-gray-600">
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Confirm delete
+        async function confirmDelete(backendId) {
+            const invoice = invoiceData.find(inv => inv.__backendId === backendId);
+            if (!invoice) return;
+
+            try {
+                if (window.dataSdk) {
+                    const result = await window.dataSdk.delete(invoice);
+                    if (result.isOk) {
+                        showMessage("Nota berhasil dihapus!", "success");
+                    } else {
+                        showMessage("Gagal menghapus nota. Silakan coba lagi.", "error");
+                    }
+                }
+            } catch (error) {
+                showMessage("Terjadi kesalahan. Silakan coba lagi.", "error");
+            }
+        }
+
+        // Cancel delete
+        function cancelDelete(button, originalContent) {
+            const invoiceElement = button.closest('.border');
+            invoiceElement.innerHTML = originalContent;
+        }
+
+        // Print invoice
+        function printInvoice() {
+            window.print();
+        }
+
+        // Close print modal
+        function closePrintModal() {
+            document.getElementById('print-modal').classList.add('hidden');
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `fixed top-4 right-4 px-4 py-2 rounded-md text-white z-50 ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            messageDiv.textContent = message;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        // Event listeners
+        document.getElementById('invoice-form').addEventListener('submit', handleFormSubmit);
+        document.getElementById('subtotal').addEventListener('input', calculateTotal);
+        document.getElementById('tax').addEventListener('input', calculateTotal);
+        
+        // Initialize item row event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const initialRow = document.querySelector('.item-row');
+            if (initialRow) {
+                attachItemEventListeners(initialRow);
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('print-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePrintModal();
+            }
+        });
+
+        // Initialize app
+        initializeApp();
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99dafc3df2a5ce53',t:'MTc2MzAwMjQ3NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){},b=document.getElementsByTagName('script');document.onreadystatechange=function(b){e(b);if('loading'!==document.readyState){if(b.length){for(var f=0,g=b.length;f<g;f++)b[f].parentNode.removeChild(b[f]);}}}}}})();</script></body>
+</html>
